@@ -1,0 +1,159 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email             String    @unique
+  username          String    @unique
+  passwordHash      String    @map("password_hash")
+  fullName          String?   @map("full_name")
+  phoneNumber       String?   @map("phone_number")
+  profilePictureUrl String?   @map("profile_picture_url")
+  skillLevel        String?   @map("skill_level") // beginner, intermediate, advanced, pro
+  bio               String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  createdGames  Game[]           @relation("creator")
+  gameParticipations GamePlayer[]
+  reservations  CourtReservation[]
+  preferences   UserPreferences?
+
+  @@index([email])
+  @@index([username])
+  @@map("users")
+}
+
+model UserPreferences {
+  id                   String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String  @unique @map("user_id") @db.Uuid
+  preferredSports      String? @map("preferred_sports") // JSON array: ["basketball", "pickleball"]
+  preferredSkillLevels String? @map("preferred_skill_levels") // JSON array
+  preferredTimeRange   String? @map("preferred_time_range") // morning, afternoon, evening
+  maxDistanceMiles     Int     @default(5) @map("max_distance_miles")
+  notificationsEnabled Boolean @default(true) @map("notifications_enabled")
+  emailNotifications   Boolean @default(true) @map("email_notifications")
+  pushNotifications    Boolean @default(true) @map("push_notifications")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_preferences")
+}
+
+model Court {
+  id                  String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  address             String
+  latitude            Decimal @db.Decimal(10, 8)
+  longitude           Decimal @db.Decimal(11, 8)
+  description         String?
+  basketballCourts    Int     @default(0) @map("basketball_courts")
+  pickleballCourts    Int     @default(1) @map("pickleball_courts")
+  hasLighting         Boolean @default(false) @map("has_lighting")
+  restroomsAvailable  Boolean @default(false) @map("restrooms_available")
+  parkingAvailable    Boolean @default(true) @map("parking_available")
+  operatingHoursStart String? @map("operating_hours_start") // TIME stored as string
+  operatingHoursEnd   String? @map("operating_hours_end") // TIME stored as string
+  evastonParksUrl     String? @map("evanston_parks_url")
+  permitRequired      Boolean @default(true) @map("permit_required")
+  contactPhone        String? @map("contact_phone")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  games        Game[]
+  reservations CourtReservation[]
+
+  @@index([latitude, longitude])
+  @@index([name])
+  @@map("courts")
+}
+
+model Game {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courtId                String   @map("court_id") @db.Uuid
+  creatorId              String   @map("creator_id") @db.Uuid
+  sportType              String   @map("sport_type") // basketball, pickleball
+  title                  String?
+  description            String?
+  status                 String   @default("scheduled") // scheduled, active, completed, cancelled
+  scheduledTime          DateTime @map("scheduled_time")
+  expectedDurationMinutes Int     @default(60) @map("expected_duration_minutes")
+  currentPlayerCount     Int     @default(0) @map("current_player_count")
+  maxPlayers             Int     @default(10) @map("max_players")
+  minSkillLevel          String? @map("min_skill_level") // beginner, intermediate, advanced, pro
+  maxSkillLevel          String? @map("max_skill_level")
+  isPublic               Boolean @default(true) @map("is_public")
+  notes                  String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  startedAt DateTime? @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+
+  // Relations
+  court        Court         @relation(fields: [courtId], references: [id])
+  creator      User          @relation("creator", fields: [creatorId], references: [id])
+  players      GamePlayer[]
+  reservations CourtReservation[]
+
+  @@index([courtId])
+  @@index([creatorId])
+  @@index([scheduledTime])
+  @@index([status])
+  @@map("games")
+}
+
+model GamePlayer {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  gameId   String @map("game_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+  status   String @default("joined") // joined, invited, pending, declined, left
+  joinedAt DateTime @default(now()) @map("joined_at")
+  leftAt   DateTime? @map("left_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, userId])
+  @@index([gameId])
+  @@index([userId])
+  @@map("game_players")
+}
+
+model CourtReservation {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courtId          String   @map("court_id") @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  gameId           String?  @map("game_id") @db.Uuid
+  reservationStart DateTime @map("reservation_start")
+  reservationEnd   DateTime @map("reservation_end")
+  status           String   @default("pending") // pending, confirmed, cancelled, no_show
+  permitId         String?  @map("permit_id") // External Evanston Parks permit ID
+  notes            String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  court Court @relation(fields: [courtId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  game  Game? @relation(fields: [gameId], references: [id])
+
+  @@index([courtId])
+  @@index([userId])
+  @@index([reservationStart])
+  @@map("court_reservations")
+}
