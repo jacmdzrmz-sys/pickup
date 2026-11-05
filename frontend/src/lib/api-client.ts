@@ -1,12 +1,22 @@
 import axios, { AxiosInstance } from 'axios';
 import { ApiResponse } from '@/types';
 
+const resolveApiBaseUrl = () => {
+  const configuredBaseUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  if (configuredBaseUrl) {
+    return configuredBaseUrl;
+  }
+
+  return '/api';
+};
+
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+      baseURL: resolveApiBaseUrl(),
       headers: {
         'Content-Type': 'application/json',
       },

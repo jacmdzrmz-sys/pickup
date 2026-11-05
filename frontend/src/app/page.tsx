@@ -10,9 +10,7 @@ export default function Home() {
     // Check API connection
     const checkApi = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/health`
-        );
+        const response = await fetch('/api/health');
         if (response.ok) {
           console.log('✓ Backend connected');
         }
