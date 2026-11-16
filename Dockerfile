@@ -1,38 +1,31 @@
-# Stage 1: Build the Application
-# We use node:18 as the base for building and installing dependencies.
-FROM node:18 AS build
+FROM node:18-alpine AS build
 
-# Set the working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json first to leverage Docker caching.
-# If these files don't change, subsequent builds can skip 'npm install'.
-COPY package*.json ./
-
-# Install dependencies
+COPY backend/package*.json ./
 RUN npm install
 
-# Copy the rest of the application source code
-COPY . .
+COPY backend/prisma ./prisma
+RUN npx prisma generate
 
-# Stage 2: Create the Final Production Image
-# We use node:18 as the runtime image with all the necessary tools.
-FROM node:18
+COPY backend/tsconfig.json ./tsconfig.json
+COPY backend/src ./src
+RUN npm run build
+RUN npm prune --omit=dev
 
-# Set the working directory
-WORKDIR /usr/src/app
+FROM node:18-alpine
 
-# Copy the node_modules and built application files from the 'build' stage
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/package*.json ./
-COPY --from=build /usr/src/app .
+WORKDIR /app
 
-# Expose the port your app runs on
+ENV NODE_ENV=production
 ENV PORT=8080
-EXPOSE $PORT
 
-# Run the application using the non-root user (recommended for security)
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/package*.json ./
+COPY --from=build --chown=node:node /app/dist ./dist
+
+EXPOSE 8080
+
 USER node
 
-# Define the command to start your application
-CMD [ "node", "index.js" ]
+CMD ["npm", "start"]
