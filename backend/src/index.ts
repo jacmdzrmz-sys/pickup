@@ -8,7 +8,8 @@ config();
 
 const app: Express = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 8080;
+const HOST = '0.0.0.0';
 
 // Middleware
 app.use(cors());
@@ -47,13 +48,12 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, async () => {
+// Start the server on all interfaces so Fly Proxy can reach it.
+app.listen(PORT, HOST, async () => {
   try {
-    // Test database connection
     await prisma.$connect();
     console.log('✓ Database connected');
-    console.log(`✓ Server running on http://localhost:${PORT}`);
+    console.log(`✓ Server listening on http://${HOST}:${PORT}`);
     console.log(`✓ Environment: ${process.env.NODE_ENV}`);
   } catch (error) {
     console.error('✗ Database connection failed:', error);
