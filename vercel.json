@@ -1,5 +1,4 @@
-cd backend
-npm installnpm : The term 'npm' is not recognized as the name of a cmdlet, function, script file, or operable program.{
+{
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
     "backend": {
@@ -34,3 +33,4 @@ npm installnpm : The term 'npm' is not recognized as the name of a cmdlet, funct
     }
   ]
 }
+
