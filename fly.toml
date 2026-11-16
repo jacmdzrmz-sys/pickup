@@ -1,3 +1,8 @@
+# fly.toml app configuration file generated for pickup-cgpjew on 2026-11-16T03:07:53Z
+#
+# See https://docs.fly.io/reference/configuration for information about how to use this file.
+#
+
 app = 'pickup-cgpjew'
 primary_region = 'ams'
 
@@ -11,18 +16,16 @@ primary_region = 'ams'
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
-
-  [[http_service.checks]]
-    method = 'GET'
-    path = '/health'
-    interval = '30s'
-    timeout = '5s'
-    grace_period = '10s'
+  checks = [{ grace_period = '10s', interval = '30s', method = 'GET', path = '/health', timeout = '5s' }]
 
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 1024
+
+[deploy]
+  strategy = 'immediate'
