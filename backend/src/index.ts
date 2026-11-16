@@ -3,7 +3,6 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 
-// Load environment variables
 config();
 
 const app: Express = express();
@@ -11,59 +10,93 @@ const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = '0.0.0.0';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Fly Proxy sits in front of the app, so trust its forwarded client headers.
+app.set('trust proxy', 1);
 
-// Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+const configuredOrigins = process.env.CORS_ORIGIN
+  ?.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: configuredOrigins?.length ? configuredOrigins : true,
+  })
+);
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+app.get('/health', (_req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // API Routes (to be implemented)
-app.use('/api/auth', (req: Request, res: Response) => {
+app.use('/api/auth', (_req: Request, res: Response) => {
   res.json({ message: 'Auth routes - coming soon' });
 });
 
-app.use('/api/users', (req: Request, res: Response) => {
+app.use('/api/users', (_req: Request, res: Response) => {
   res.json({ message: 'User routes - coming soon' });
 });
 
-app.use('/api/courts', (req: Request, res: Response) => {
+app.use('/api/courts', (_req: Request, res: Response) => {
   res.json({ message: 'Court routes - coming soon' });
 });
 
-app.use('/api/games', (req: Request, res: Response) => {
+app.use('/api/games', (_req: Request, res: Response) => {
   res.json({ message: 'Game routes - coming soon' });
 });
 
-app.use('/api/reservations', (req: Request, res: Response) => {
+app.use('/api/reservations', (_req: Request, res: Response) => {
   res.json({ message: 'Reservation routes - coming soon' });
 });
 
-// Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+app.use(
+  (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+);
 
-// Start the server on all interfaces so Fly Proxy can reach it.
-app.listen(PORT, HOST, async () => {
+async function start() {
   try {
+    // Connect before listening so Fly does not route traffic to an app that
+    // cannot reach its required database.
     await prisma.$connect();
     console.log('✓ Database connected');
-    console.log(`✓ Server listening on http://${HOST}:${PORT}`);
-    console.log(`✓ Environment: ${process.env.NODE_ENV}`);
-  } catch (error) {
-    console.error('✗ Database connection failed:', error);
-    process.exit(1);
-  }
-});
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\nShutting down...');
-  await prisma.$disconnect();
-  process.exit(0);
-});
+    const server = app.listen(PORT, HOST, () => {
+      console.log(`✓ Server listening on http://${HOST}:${PORT}`);
+      console.log(`✓ Environment: ${process.env.NODE_ENV}`);
+    });
+
+    let isShuttingDown = false;
+    const shutdown = (signal: string) => {
+      if (isShuttingDown) return;
+      isShuttingDown = true;
+      console.log(`Received ${signal}; shutting down gracefully...`);
+
+      server.close(async (error) => {
+        if (error) console.error('HTTP server shutdown error:', error);
+        try {
+          await prisma.$disconnect();
+          process.exitCode = error ? 1 : 0;
+        } catch (disconnectError) {
+          console.error('Database disconnect failed:', disconnectError);
+          process.exitCode = 1;
+        }
+      });
+    };
+
+    process.once('SIGINT', () => shutdown('SIGINT'));
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
+  } catch (error) {
+    console.error('✗ Application startup failed:', error);
+    await prisma.$disconnect().catch((disconnectError) => {
+      console.error('Database disconnect failed:', disconnectError);
+    });
+    process.exitCode = 1;
+  }
+}
+
+void start();
