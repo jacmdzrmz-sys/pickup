@@ -4,6 +4,8 @@ FROM node:18-alpine
 # Build from the repository root so the backend/ paths below are available.
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 COPY backend/package*.json ./
 RUN npm install
 
