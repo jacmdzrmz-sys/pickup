@@ -7,6 +7,10 @@ app = 'pickup-nkxu5a'
 primary_region = 'iad'
 
 [build]
+
+[processes]
+  app = 'npm start'
+
 [http_service]
   internal_port = 8080
   force_https = true
