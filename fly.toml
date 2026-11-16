@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for pickup-cgpjew on 2026-11-16T03:07:53Z
+# fly.toml app configuration file generated for pickup-cgpjew on 2026-11-16T03:39:53Z
 #
 # See https://docs.fly.io/reference/configuration for information about how to use this file.
 #
 
 app = 'pickup-cgpjew'
-primary_region = 'ams'
+primary_region = 'ord'
 
 [build]
   dockerfile = 'Dockerfile'
