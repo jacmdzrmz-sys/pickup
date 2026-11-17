@@ -45,6 +45,28 @@ npm run build
 npm start
 ```
 
+### Hostinger Node.js Hosting
+
+Set these variables in the Hostinger application environment:
+
+- `DATABASE_URL` — Supabase PostgreSQL transaction-pooler URI from Dashboard →
+  Connect (port `6543`, with `pgbouncer=true`). URL-encode special characters
+  in the database password.
+- `PORT` — use the port assigned by Hostinger; the server defaults to `8080`.
+- `NODE_ENV` — set to `production`.
+- `JWT_SECRET` — a unique, private signing secret.
+- `CORS_ORIGIN` — the frontend origin, such as `https://evanstondinks.app`.
+
+Use `npm run build` as the build command and `dist/index.js` as the entry point.
+The build generates Prisma Client before compiling TypeScript. Production
+startup reads environment variables supplied by Hostinger and does not load a
+local `.env` file. `GET /health` always returns HTTP 200 and reports whether the
+database connection is currently available.
+
+There is no Prisma migrations directory in this repository, so `DIRECT_URL` is
+not currently used. If migrations are added, configure a direct Supabase
+connection separately for migration commands.
+
 ## Project Structure
 
 ```

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/lib/api-client';
 
 type Todo = {
   id: string | number;
@@ -20,9 +21,13 @@ export default function HomeContent({ todos }: HomeContentProps) {
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const response = await fetch('/api/health');
+        const response = await fetch(`${API_BASE_URL}/api/health`);
         if (!response.ok) {
           throw new Error(`Backend health check returned ${response.status}`);
+        }
+        const health: { database?: string } = await response.json();
+        if (health.database !== 'connected') {
+          throw new Error('Backend database is disconnected');
         }
         setBackendStatus('ready');
       } catch (error) {

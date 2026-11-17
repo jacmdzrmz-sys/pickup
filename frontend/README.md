@@ -6,7 +6,7 @@ Next.js web application for Evanston Pickup Games.
 
 ### Prerequisites
 - Node.js 18+
-- Backend API running on `http://localhost:3001`
+- Backend API available at the URL configured in `NEXT_PUBLIC_API_URL`
 
 ### Installation
 
@@ -18,9 +18,11 @@ cp .env.local.example .env.local
 
 ### Environment Setup
 
-Update `.env.local` with:
+Copy `.env.local.example` to `.env.local` and set the API URL for your
+deployment. If unset, the frontend uses `https://evanstondinks.app`.
+
 ```
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=https://evanstondinks.app
 NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_public_token
 ```
 
@@ -110,7 +112,7 @@ npm test                 # Run tests
 
 ## Integration Points
 
-- Backend API: `http://localhost:3001`
+- Backend API: `NEXT_PUBLIC_API_URL`
 - Mapbox API for maps and geolocation
 - JWT token storage in localStorage
 - Real-time updates via WebSocket (coming soon)
