@@ -8,7 +8,7 @@ const resolveApiBaseUrl = () => {
     return configuredBaseUrl;
   }
 
-  return '/api';
+  return '';
 };
 
 class ApiClient {
