@@ -26,9 +26,25 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+const checkHealth = async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Database health check failed:', error);
+    res.status(503).json({
+      status: 'unavailable',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+
+app.get(['/health', '/api/health'], checkHealth);
 
 // API Routes (to be implemented)
 app.use('/api/auth', (_req: Request, res: Response) => {
@@ -58,45 +74,32 @@ app.use(
   }
 );
 
-async function start() {
-  try {
-    // Connect before listening so Fly does not route traffic to an app that
-    // cannot reach its required database.
-    await prisma.$connect();
-    console.log('✓ Database connected');
+function start() {
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`✓ Server listening on http://${HOST}:${PORT}`);
+    console.log(`✓ Environment: ${process.env.NODE_ENV}`);
+  });
 
-    const server = app.listen(PORT, HOST, () => {
-      console.log(`✓ Server listening on http://${HOST}:${PORT}`);
-      console.log(`✓ Environment: ${process.env.NODE_ENV}`);
+  let isShuttingDown = false;
+  const shutdown = (signal: string) => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`Received ${signal}; shutting down gracefully...`);
+
+    server.close(async (error) => {
+      if (error) console.error('HTTP server shutdown error:', error);
+      try {
+        await prisma.$disconnect();
+        process.exitCode = error ? 1 : 0;
+      } catch (disconnectError) {
+        console.error('Database disconnect failed:', disconnectError);
+        process.exitCode = 1;
+      }
     });
+  };
 
-    let isShuttingDown = false;
-    const shutdown = (signal: string) => {
-      if (isShuttingDown) return;
-      isShuttingDown = true;
-      console.log(`Received ${signal}; shutting down gracefully...`);
-
-      server.close(async (error) => {
-        if (error) console.error('HTTP server shutdown error:', error);
-        try {
-          await prisma.$disconnect();
-          process.exitCode = error ? 1 : 0;
-        } catch (disconnectError) {
-          console.error('Database disconnect failed:', disconnectError);
-          process.exitCode = 1;
-        }
-      });
-    };
-
-    process.once('SIGINT', () => shutdown('SIGINT'));
-    process.once('SIGTERM', () => shutdown('SIGTERM'));
-  } catch (error) {
-    console.error('✗ Application startup failed:', error);
-    await prisma.$disconnect().catch((disconnectError) => {
-      console.error('Database disconnect failed:', disconnectError);
-    });
-    process.exitCode = 1;
-  }
+  process.once('SIGINT', () => shutdown('SIGINT'));
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
 }
 
-void start();
+start();
