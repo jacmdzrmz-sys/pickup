@@ -1,22 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
 import { ApiResponse } from '@/types';
 
-const resolveApiBaseUrl = () => {
-  const configuredBaseUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
-
-  if (configuredBaseUrl) {
-    return configuredBaseUrl;
-  }
-
-  return '';
-};
+export const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL || 'https://evanstondinks.app'
+).replace(/\/+$/, '');
 
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: resolveApiBaseUrl(),
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
       },

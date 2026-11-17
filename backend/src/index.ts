@@ -1,14 +1,12 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 
-config();
-
 const app: Express = express();
-const prisma = new PrismaClient();
-const PORT = Number(process.env.PORT) || 8080;
-const HOST = '0.0.0.0';
+let prisma: PrismaClient | undefined;
+let isDatabaseConnected = false;
+let isShuttingDown = false;
+const DATABASE_RETRY_INTERVAL_MS = 10_000;
 
 // Fly Proxy sits in front of the app, so trust its forwarded client headers.
 app.set('trust proxy', 1);
@@ -26,25 +24,25 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-const checkHealth = async (_req: Request, res: Response) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({
-      status: 'ok',
-      database: 'connected',
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error('Database health check failed:', error);
-    res.status(503).json({
-      status: 'unavailable',
-      database: 'disconnected',
-      timestamp: new Date().toISOString(),
-    });
-  }
+const checkHealth = (_req: Request, res: Response) => {
+  const databaseStatus = !process.env.DATABASE_URL
+    ? 'unconfigured'
+    : isDatabaseConnected
+      ? 'connected'
+      : 'disconnected';
+
+  res.status(200).json({
+    status: 'ok',
+    database: databaseStatus,
+    timestamp: new Date().toISOString(),
+  });
 };
 
 app.get(['/health', '/api/health'], checkHealth);
+
+app.get('/', (_req: Request, res: Response) => {
+  res.json({ name: 'pickup-api', status: 'ok', health: '/health' });
+});
 
 // API Routes (to be implemented)
 app.use('/api/auth', (_req: Request, res: Response) => {
@@ -67,6 +65,10 @@ app.use('/api/reservations', (_req: Request, res: Response) => {
   res.json({ message: 'Reservation routes - coming soon' });
 });
 
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
 app.use(
   (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
@@ -74,13 +76,63 @@ app.use(
   }
 );
 
-function start() {
-  const server = app.listen(PORT, HOST, () => {
-    console.log(`✓ Server listening on http://${HOST}:${PORT}`);
-    console.log(`✓ Environment: ${process.env.NODE_ENV}`);
-  });
+async function monitorDatabase() {
+  let missingUrlReported = false;
 
-  let isShuttingDown = false;
+  while (!isShuttingDown) {
+    if (!process.env.DATABASE_URL) {
+      isDatabaseConnected = false;
+      if (!missingUrlReported) {
+        console.error(
+          'DATABASE_URL is not set; configure it in the Hostinger environment.'
+        );
+        missingUrlReported = true;
+      }
+    } else {
+      try {
+        prisma ??= new PrismaClient();
+        if (!isDatabaseConnected) {
+          await prisma.$connect();
+        }
+        await prisma.$queryRaw`SELECT 1`;
+        if (!isDatabaseConnected) {
+          console.log('✓ Database connected');
+        }
+        isDatabaseConnected = true;
+        missingUrlReported = false;
+      } catch (error) {
+        isDatabaseConnected = false;
+        console.error(
+          `Database connection failed; retrying in ${DATABASE_RETRY_INTERVAL_MS / 1000} seconds.`,
+          error
+        );
+      }
+    }
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, DATABASE_RETRY_INTERVAL_MS)
+    );
+  }
+}
+
+function start() {
+  const server = app.listen(
+    Number(process.env.PORT) || 8080,
+    '0.0.0.0',
+    () => {
+      console.log(
+        `✓ Server listening on port ${Number(process.env.PORT) || 8080}`
+      );
+      console.log(`✓ Environment: ${process.env.NODE_ENV ?? 'production'}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(
+          '⚠ NODE_ENV is development; set it to production on the host.'
+        );
+      }
+      void monitorDatabase();
+    }
+  );
+
   const shutdown = (signal: string) => {
     if (isShuttingDown) return;
     isShuttingDown = true;
@@ -89,7 +141,9 @@ function start() {
     server.close(async (error) => {
       if (error) console.error('HTTP server shutdown error:', error);
       try {
-        await prisma.$disconnect();
+        if (prisma) {
+          await prisma.$disconnect();
+        }
         process.exitCode = error ? 1 : 0;
       } catch (disconnectError) {
         console.error('Database disconnect failed:', disconnectError);

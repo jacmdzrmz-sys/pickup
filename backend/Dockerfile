@@ -4,12 +4,13 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
 RUN npm run build
-RUN npx prisma generate
+
+ENV PORT=3001
 
 EXPOSE 3001
 

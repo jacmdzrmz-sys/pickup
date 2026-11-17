@@ -13,8 +13,7 @@ COPY backend/prisma ./prisma
 COPY backend/tsconfig.json ./tsconfig.json
 COPY backend/src ./src
 
-RUN npx prisma generate \
-    && npm run build \
+RUN npm run build \
     && npm prune --omit=dev
 
 ENV NODE_ENV=production \
