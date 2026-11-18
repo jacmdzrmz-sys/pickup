@@ -4,6 +4,8 @@ import './globals.css';
 import AppNav from '@/components/AppNav';
 import Footer from '@/components/Footer';
 import { createClient } from '@/utils/supabase/server';
+import { getOfficialLinks } from '@/lib/official';
+import { donateUrl } from '@/components/Donate';
 
 export const metadata: Metadata = {
   title: 'Evanston Dinks',
@@ -35,14 +37,15 @@ async function getNavState() {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const nav = await getNavState();
+  const [nav, links] = await Promise.all([getNavState(), getOfficialLinks(createClient()).catch(() => undefined)]);
+  const donate = donateUrl(links);
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
         <div className="flex min-h-screen flex-col pb-20 md:pb-0">
           <AppNav signedIn={nav.signedIn} unread={nav.unread} />
           <div className="flex-1">{children}</div>
-          <Footer />
+          <Footer donateUrl={donate} />
         </div>
       </body>
     </html>

@@ -2,10 +2,12 @@ import Link from 'next/link';
 import type { GameView } from '@/lib/db-types';
 import GameCard from '@/components/GameCard';
 import { evanstonToday } from '@/lib/time';
+import { DonateCard } from '@/components/Donate';
 
 type HomeContentProps = {
   games: GameView[];
   signedIn: boolean;
+  donateUrl?: string | null;
 };
 
 const STEPS = [
@@ -16,7 +18,7 @@ const STEPS = [
   { icon: '🎉', title: 'Have fun', text: 'Meet your neighbors on the court.' },
 ];
 
-export default function HomeContent({ games, signedIn }: HomeContentProps) {
+export default function HomeContent({ games, signedIn, donateUrl }: HomeContentProps) {
   const today = evanstonToday();
   return (
     <main className="bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -83,6 +85,12 @@ export default function HomeContent({ games, signedIn }: HomeContentProps) {
           </div>
         )}
       </section>
+
+      {donateUrl && (
+        <section className="mx-auto max-w-3xl px-4 pb-10">
+          <DonateCard url={donateUrl} />
+        </section>
+      )}
 
       <section className="mx-auto max-w-3xl px-4 pb-12">
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">

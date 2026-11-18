@@ -1,12 +1,15 @@
 import { createClient } from '@/utils/supabase/server';
 import type { GameView } from '@/lib/db-types';
 import HomeContent from './home-content';
+import { getOfficialLinks } from '@/lib/official';
+import { donateUrl } from '@/components/Donate';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   let games: GameView[] = [];
   let signedIn = false;
+  let donate: string | null = null;
   try {
     const supabase = createClient();
     const [{ data }, { data: auth }] = await Promise.all([
@@ -21,10 +24,11 @@ export default async function Home() {
       supabase.auth.getUser(),
     ]);
     games = (data ?? []) as GameView[];
+    donate = donateUrl(await getOfficialLinks(supabase));
     signedIn = !!auth.user;
   } catch {
     // Show the page without listings if the database isn't reachable.
   }
 
-  return <HomeContent games={games} signedIn={signedIn} />;
+  return <HomeContent games={games} signedIn={signedIn} donateUrl={donate} />;
 }
