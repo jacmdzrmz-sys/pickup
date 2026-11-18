@@ -4,7 +4,7 @@ export const metadata = { title: 'Privacy Policy · Evanston Dinks' };
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="November 17, 2026">
+    <LegalPage title="Privacy Policy" updated="November 18, 2026">
       <p>We collect as little as we can, and we never sell your information.</p>
 
       <h2>What we collect</h2>
@@ -12,7 +12,8 @@ export default function PrivacyPage() {
         <li><strong>Sign-in information:</strong> your email address, and — if you use Google — your name and profile photo from Google. If you use a password, it is stored only as a secure hash by our authentication provider (Supabase); we never see or store it in plain text.</li>
         <li><strong>Profile you choose to add:</strong> display name, photo, skill level, preferred play type, optional neighborhood, and optional short bio.</li>
         <li><strong>Activity:</strong> games you host or join, players you block, reports you send, and in-app notifications.</li>
-        <li><strong>Consent records:</strong> when you accepted the terms and whether you opted in to emails.</li>
+        <li><strong>Competitions (optional):</strong> scores you report or confirm, round robins and ladders you join, and the rating calculated from your confirmed games.</li>
+        <li><strong>Consent records:</strong> when you accepted the terms, whether you opted in to emails, and whether you confirmed you’re 18+ for competitions.</li>
         <li><strong>Basic technical data</strong> our hosting providers log to keep the site secure and working (such as IP address and browser type).</li>
       </ul>
       <p>We don’t ask for your phone number, home address, or date of birth.</p>
@@ -21,6 +22,11 @@ export default function PrivacyPage() {
       <p>
         Your display name, photo, skill level, play type, neighborhood and bio, plus the games you host or join. We never show
         your email address, password, sign-in tokens, reports you’ve made, or who you’ve blocked.
+      </p>
+      <p>
+        Competitions: round robin and ladder standings show everyone who joins them. Pickup scores you report are seen only by
+        the players in that game. You appear on Top Players, Most Active and Champion of the Month only if you turn that on,
+        and you can turn it off any time on your Profile page.
       </p>
 
       <h2>How we use it</h2>

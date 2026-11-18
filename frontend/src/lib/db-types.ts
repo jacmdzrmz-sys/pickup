@@ -72,6 +72,7 @@ export type Profile = {
   play_type: string | null;
   neighborhood: string | null;
   bio: string | null;
+  show_on_leaderboards?: boolean;
   created_at: string;
 };
 
@@ -112,6 +113,7 @@ export type NotificationRow = {
   id: string;
   kind: string;
   game_id: string | null;
+  link?: string | null;
   message: string;
   read_at: string | null;
   created_at: string;
@@ -129,4 +131,110 @@ export type ReportRow = {
   admin_note: string | null;
   context_snapshot: string | null;
   created_at: string;
+};
+
+// ---- Competitions (supabase/migrations/20261118100000_competitions.sql) ----
+
+export type MatchPlayer = { id: string; name: string; avatar: string | null };
+
+export type MatchSummary = {
+  id: string;
+  kind: 'casual' | 'round_robin' | 'ladder';
+  format: 'singles' | 'doubles';
+  status: 'scheduled' | 'pending' | 'confirmed' | 'disputed' | 'cancelled';
+  played_on: string;
+  round_no: number | null;
+  court_no: number | null;
+  score_a: number | null;
+  score_b: number | null;
+  reported_by: string | null;
+  event_id: string | null;
+  ladder_id: string | null;
+  team_a: MatchPlayer[];
+  team_b: MatchPlayer[];
+  my_team: 'a' | 'b' | null;
+  can_confirm: boolean;
+  created_at: string;
+};
+
+export type RrEvent = {
+  id: string;
+  host_id: string | null;
+  title: string;
+  description: string | null;
+  location_id: string | null;
+  event_date: string;
+  start_time: string;
+  format: 'singles' | 'doubles';
+  max_players: number;
+  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
+  rounds: number | null;
+  winner_id: string | null;
+};
+
+export type RrStanding = {
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  played: number;
+  wins: number;
+  losses: number;
+  points_for: number;
+  points_against: number;
+  diff: number;
+};
+
+export type Ladder = {
+  id: string;
+  organizer_id: string | null;
+  name: string;
+  description: string | null;
+  location_id: string | null;
+  skill_level: string;
+  ends_on: string | null;
+  status: 'active' | 'closed';
+  created_at: string;
+};
+
+export type LadderStanding = {
+  rank: number;
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  wins: number;
+  losses: number;
+};
+
+export type LadderChallenge = {
+  id: string;
+  ladder_id: string;
+  challenger_id: string;
+  opponent_id: string;
+  status: 'pending' | 'accepted' | 'declined' | 'completed' | 'cancelled';
+  match_id: string | null;
+  created_at: string;
+};
+
+export type TopPlayer = {
+  rank: number;
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  skill_level: string | null;
+  rating: number;
+  wins: number;
+  losses: number;
+  matches: number;
+};
+
+export type ActivePlayer = { user_id: string; display_name: string; avatar_url: string | null; games: number; wins: number };
+
+export type Champion = {
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  skill_level: string | null;
+  wins: number;
+  games: number;
+  month: string;
 };

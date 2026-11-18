@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CompetitionSettings from '@/components/compete/CompetitionSettings';
 import { requireUser } from '@/lib/session';
 import type { GameView, NotificationRow, Profile } from '@/lib/db-types';
 import { evanstonToday } from '@/lib/time';
@@ -16,7 +17,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: settings }, { data: notes }, { data: myPlayers }, { data: blocks }, { data: adminRow }] =
     await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('account_settings').select('email_notifications, terms_accepted_at').eq('user_id', user.id).single(),
+      supabase.from('account_settings').select('email_notifications, terms_accepted_at, adult_confirmed_at').eq('user_id', user.id).single(),
       supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(20),
       supabase.from('community_game_players').select('game_id').eq('user_id', user.id),
       supabase.from('user_blocks').select('blocked_id'),
@@ -93,6 +94,11 @@ export default async function ProfilePage() {
         userId={user.id}
         profile={profile as Profile}
         emailNotifications={!!settings?.email_notifications}
+      />
+
+      <CompetitionSettings
+        isAdult={!!(settings as { adult_confirmed_at?: string | null } | null)?.adult_confirmed_at}
+        showOnLeaderboards={!!(profile as Profile | null)?.show_on_leaderboards}
       />
 
       <BlockedList people={(blockedProfiles ?? []) as { id: string; display_name: string }[]} />

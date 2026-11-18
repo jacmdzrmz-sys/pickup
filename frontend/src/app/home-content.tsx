@@ -4,6 +4,7 @@ import GameCard from '@/components/GameCard';
 import { evanstonToday } from '@/lib/time';
 import { DonateCard } from '@/components/Donate';
 import InstallApp from '@/components/InstallApp';
+import ChampionCard from '@/components/compete/ChampionCard';
 
 type HomeContentProps = {
   games: GameView[];
@@ -102,6 +103,22 @@ export default function HomeContent({ games, signedIn, donateUrl }: HomeContentP
             </Link>
           </div>
         )}
+      </section>
+
+      {/* Compete */}
+      <section className="mx-auto max-w-3xl space-y-4 px-4 pb-10">
+        <ChampionCard variant="home" />
+        <div className="rounded-2xl border-[3px] border-dink-pink/30 bg-white p-5">
+          <p className="text-sm font-bold uppercase tracking-widest text-dink-pink">Friendly competition</p>
+          <h2 className="mt-1 text-2xl font-black">Round robins, ladders & Top Players 🏆</h2>
+          <p className="mt-1 text-slate-600">
+            Log your scores, host a round robin with automatic pairings, or climb a singles ladder. Player-run, just for fun.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/compete" className="rounded-full bg-dink-pink px-5 py-3 font-extrabold text-white">Let’s compete</Link>
+            <Link href="/leaders" className="rounded-full border-[3px] border-dink-blue px-5 py-2.5 font-extrabold text-dink-blue">Top Players</Link>
+          </div>
+        </div>
       </section>
 
       {/* Where Evanston plays */}

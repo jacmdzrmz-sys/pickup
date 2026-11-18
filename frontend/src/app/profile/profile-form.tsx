@@ -167,7 +167,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
       <ul className="mt-2 space-y-2">
         {notifications.map((n) => (
           <li key={n.id} className={`rounded-lg p-3 text-sm ${n.read_at ? 'bg-gray-50 text-gray-600' : 'bg-red-50 font-semibold text-red-900'}`}>
-            {n.game_id ? <a href={`/games/${n.game_id}`} className="underline">{n.message}</a> : n.message}
+            {n.link ? <a href={n.link} className="underline">{n.message}</a> : n.game_id ? <a href={`/games/${n.game_id}`} className="underline">{n.message}</a> : n.message}
           </li>
         ))}
       </ul>

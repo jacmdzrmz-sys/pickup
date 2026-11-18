@@ -1,6 +1,6 @@
 import type { createClient } from '@/utils/supabase/server';
 
-type SupabaseClient = ReturnType<typeof createClient>;
+export type SupabaseClient = ReturnType<typeof createClient>;
 import type { OfficialLink } from './db-types';
 
 // Fallbacks used only if the official_links table can't be read. Admins
