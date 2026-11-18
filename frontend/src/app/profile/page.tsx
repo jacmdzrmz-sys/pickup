@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/session';
 import type { GameView, NotificationRow, Profile } from '@/lib/db-types';
 import { evanstonToday } from '@/lib/time';
 import GameCard from '@/components/GameCard';
+import InstallApp from '@/components/InstallApp';
 import ProfileForm, { BlockedList, DeleteAccount, NotificationsList } from './profile-form';
 
 export const dynamic = 'force-dynamic';
@@ -56,6 +57,8 @@ export default async function ProfilePage() {
           </form>
         </div>
       </div>
+
+      <InstallApp />
 
       <NotificationsList notifications={(notes ?? []) as NotificationRow[]} />
 

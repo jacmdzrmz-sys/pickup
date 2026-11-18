@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import AppNav from '@/components/AppNav';
 import Footer from '@/components/Footer';
+import { RegisterServiceWorker } from '@/components/InstallApp';
 import { createClient } from '@/utils/supabase/server';
 import { getOfficialLinks } from '@/lib/official';
 import { donateUrl } from '@/components/Donate';
@@ -11,11 +12,15 @@ export const metadata: Metadata = {
   title: 'Evanston Dinks',
   description:
     'Find and join pickleball games in Evanston, see where to play, and get to official City court reservations.',
+  applicationName: 'Evanston Dinks',
+  appleWebApp: { capable: true, title: 'Dinks', statusBarStyle: 'default' },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
   themeColor: '#2563eb',
 };
 
@@ -46,6 +51,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <AppNav signedIn={nav.signedIn} unread={nav.unread} />
           <div className="flex-1">{children}</div>
           <Footer donateUrl={donate} />
+          <RegisterServiceWorker />
         </div>
       </body>
     </html>
