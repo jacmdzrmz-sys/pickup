@@ -119,9 +119,15 @@ export async function deleteClosure(f: FormData) {
 
 export async function updateLink(f: FormData) {
   const { supabase } = await admin();
+  const key = str(f, 'key');
+  const url = str(f, 'url') ?? '';
+  if (key === 'donate' && url && !/^https:\/\/(buy|donate)\.stripe\.com\//.test(url)) {
+    done('links', 'The donate link must be a Stripe Payment Link (https://buy.stripe.com/...)');
+  }
+  if (key !== 'donate' && !url) done('links', 'URL is required');
   const { error } = await supabase
     .from('official_links')
-    .update({ label: str(f, 'label'), url: str(f, 'url'), description: str(f, 'description'), updated_at: new Date().toISOString() })
+    .update({ label: str(f, 'label'), url, description: str(f, 'description'), updated_at: new Date().toISOString() })
     .eq('key', str(f, 'key'));
   done('links', error ? error.message : 'Link saved');
 }

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import clsx from 'clsx';
 import GameCard from '@/components/GameCard';
+import { DonateCard, donateUrl } from '@/components/Donate';
+import { getOfficialLinks } from '@/lib/official';
 import { getSessionUser } from '@/lib/session';
 import type { GameView, Location } from '@/lib/db-types';
 import { addDays, evanstonToday, formatDateShort, isValidDateString, weekendRange } from '@/lib/time';
@@ -63,14 +65,16 @@ export default async function BrowseGamesPage({ searchParams }: { searchParams: 
   if (searchParams.price === 'free') query = query.eq('is_free', true);
   if (searchParams.price === 'paid') query = query.eq('is_free', false);
 
-  const [{ data: gamesData, error }, { data: locData }, blocksRes, joinedRes] = await Promise.all([
+  const [{ data: gamesData, error }, { data: locData }, blocksRes, joinedRes, links] = await Promise.all([
     query,
     supabase.from('locations').select('slug,name,setting,sort_order').order('sort_order'),
     user ? supabase.from('user_blocks').select('blocked_id') : Promise.resolve({ data: [] as { blocked_id: string }[] }),
     user
       ? supabase.from('community_game_players').select('game_id').eq('user_id', user.id)
       : Promise.resolve({ data: [] as { game_id: string }[] }),
+    getOfficialLinks(supabase),
   ]);
+  const donate = donateUrl(links);
 
   const blocked = new Set(((blocksRes.data ?? []) as { blocked_id: string }[]).map((b) => b.blocked_id));
   const joined = new Set(((joinedRes.data ?? []) as { game_id: string }[]).map((j) => j.game_id));
@@ -226,6 +230,12 @@ export default async function BrowseGamesPage({ searchParams }: { searchParams: 
           {games.map((g) => (
             <GameCard key={g.id} game={g} today={today} joined={joined.has(g.id)} />
           ))}
+        </div>
+      )}
+
+      {donate && (
+        <div className="mt-8">
+          <DonateCard url={donate} compact />
         </div>
       )}
     </main>

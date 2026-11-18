@@ -360,8 +360,14 @@ export default async function AdminPage({ searchParams }: { searchParams: { tab?
           <form key={l.key} action={updateLink} className="grid grid-cols-1 gap-2 rounded-xl border border-gray-200 bg-white p-4 sm:grid-cols-3">
             <input type="hidden" name="key" value={l.key} />
             <p className="text-xs font-mono text-gray-500 sm:col-span-3">{l.key}</p>
+            {l.key === 'donate' && (
+              <p className="rounded bg-amber-50 p-2 text-xs text-amber-900 sm:col-span-3">
+                Paste your Stripe Payment Link here (starts with https://buy.stripe.com/). The donate buttons appear on the site as
+                soon as you save. Clear it to hide them.
+              </p>
+            )}
             <label className="text-xs">Label<input name="label" defaultValue={l.label} required className={field} /></label>
-            <label className="text-xs sm:col-span-2">URL<input name="url" type="url" defaultValue={l.url} required className={field} /></label>
+            <label className="text-xs sm:col-span-2">URL<input name="url" type="url" defaultValue={l.url} required={l.key !== 'donate'} className={field} /></label>
             <label className="text-xs sm:col-span-2">Description<input name="description" defaultValue={l.description ?? ''} className={field} /></label>
             <button className={`${btn} self-end`}>Save</button>
           </form>

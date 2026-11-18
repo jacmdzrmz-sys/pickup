@@ -70,7 +70,7 @@ export default async function CourtsPage() {
   const reserve = links.reserve_court ?? FALLBACK_LINKS.reserve_court;
   const parks = links.tennis_pickleball ?? FALLBACK_LINKS.tennis_pickleball;
   const checked = locations.map((l) => l.info_checked_on).filter(Boolean).sort().pop();
-  const resourceLinks = Object.values(links).sort((a: OfficialLink, b: OfficialLink) => a.sort_order - b.sort_order);
+  const resourceLinks = Object.values(links).filter((l) => l.key !== 'donate' && l.url).sort((a: OfficialLink, b: OfficialLink) => a.sort_order - b.sort_order);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
