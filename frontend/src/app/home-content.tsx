@@ -1,139 +1,114 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { API_BASE_URL } from '@/lib/api-client';
-
-type Todo = {
-  id: string | number;
-  name: string;
-};
+import type { GameView } from '@/lib/db-types';
+import GameCard from '@/components/GameCard';
+import { evanstonToday } from '@/lib/time';
 
 type HomeContentProps = {
-  todos: Todo[];
+  games: GameView[];
+  signedIn: boolean;
 };
 
-export default function HomeContent({ todos }: HomeContentProps) {
-  const [backendStatus, setBackendStatus] = useState<
-    'checking' | 'ready' | 'unavailable'
-  >('checking');
+const STEPS = [
+  { icon: '🔎', title: 'Find a game', text: 'See what Evanston players are organizing.' },
+  { icon: '👋', title: 'Join', text: 'One tap to save your spot.' },
+  { icon: '📍', title: 'Know where to play', text: 'Outdoor courts, indoor drop-in and rentals.' },
+  { icon: '📋', title: 'Follow the rules', text: 'City and posted court rules always apply.' },
+  { icon: '🎉', title: 'Have fun', text: 'Meet your neighbors on the court.' },
+];
 
-  useEffect(() => {
-    const checkApi = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/health`);
-        if (!response.ok) {
-          throw new Error(`Backend health check returned ${response.status}`);
-        }
-        const health: { database?: string } = await response.json();
-        if (health.database !== 'connected') {
-          throw new Error('Backend database is disconnected');
-        }
-        setBackendStatus('ready');
-      } catch (error) {
-        console.error('✗ Backend connection failed:', error);
-        setBackendStatus('unavailable');
-      }
-    };
-
-    checkApi();
-  }, []);
-
+export default function HomeContent({ games, signedIn }: HomeContentProps) {
+  const today = evanstonToday();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="text-center space-y-8 max-w-2xl">
-        <div className="space-y-3">
-          <h1 className="text-5xl font-bold text-gray-900">
-            Evanston Pickup Games
-          </h1>
-          <p className="text-xl text-gray-600">
-            Find and join basketball & pickleball games at your local courts
-          </p>
-        </div>
+    <main className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="mx-auto max-w-3xl px-4 pb-10 pt-10 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">Evanston Dinks</h1>
+        <p className="mt-3 text-lg text-gray-600 sm:text-xl">
+          Find a pickleball game, join in, and know where to play in Evanston.
+        </p>
 
-        <div className="space-y-4">
-          <p className="text-lg font-semibold text-gray-700">
-            Ready to play?
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Link
+            href="/games"
+            className="rounded-lg bg-blue-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
+          >
+            Browse Games
+          </Link>
+          <Link
+            href="/games/new"
+            className="rounded-lg bg-gray-800 px-6 py-4 text-lg font-semibold text-white transition hover:bg-gray-900"
+          >
+            Create a Game
+          </Link>
+          <Link
+            href="/courts"
+            className="rounded-lg bg-green-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-green-700"
+          >
+            Find Courts
+          </Link>
+        </div>
+        {!signedIn && (
+          <p className="mt-4 text-sm text-gray-600">
+            Browsing is open to everyone.{' '}
+            <Link href="/auth/login" className="font-semibold text-blue-700 underline">
+              Sign in
+            </Link>{' '}
+            to join or host.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        )}
+      </section>
+
+      <section className="mx-auto max-w-3xl px-4 pb-10">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Coming up</h2>
+          <Link href="/games" className="text-sm font-semibold text-blue-700 hover:underline">
+            See all games →
+          </Link>
+        </div>
+        {games.length > 0 ? (
+          <div className="mt-3 grid gap-3">
+            {games.map((g) => (
+              <GameCard key={g.id} game={g} today={today} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center">
+            <p className="font-semibold text-gray-800">No games posted yet.</p>
+            <p className="mt-1 text-sm text-gray-600">Be the first — it takes less than a minute.</p>
             <Link
-              href="/games"
-              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+              href="/games/new"
+              className="mt-4 inline-block rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
             >
-              Browse Games
+              Create a Game
             </Link>
-            <Link
-              href="/courts"
-              className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-            >
-              Find Courts
-            </Link>
-            <Link
-              href="/auth/login"
-              className="px-8 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-900 transition"
-            >
-              Sign In
+          </div>
+        )}
+      </section>
+
+      <section className="mx-auto max-w-3xl px-4 pb-12">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-xl font-bold text-gray-900">How it works</h2>
+          <ol className="grid grid-cols-1 gap-4 text-left sm:grid-cols-2">
+            {STEPS.map((s) => (
+              <li key={s.title} className="flex items-start gap-3">
+                <span className="text-2xl" aria-hidden>
+                  {s.icon}
+                </span>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{s.title}</h3>
+                  <p className="text-gray-600">{s.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-6 rounded-lg bg-green-50 p-4 text-sm text-green-900">
+            <strong>Need to reserve a court?</strong> Evanston Parks &amp; Recreation manages official court
+            reservations through its recreation system.{' '}
+            <Link href="/courts" className="font-semibold underline">
+              See how →
             </Link>
           </div>
         </div>
-
-        <div className="mt-12 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Features</h2>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-            <li className="flex items-start space-x-3">
-              <span className="text-2xl">🗺️</span>
-              <div>
-                <h3 className="font-semibold text-gray-900">Interactive Map</h3>
-                <p className="text-gray-600">Find courts near you</p>
-              </div>
-            </li>
-            <li className="flex items-start space-x-3">
-              <span className="text-2xl">🎮</span>
-              <div>
-                <h3 className="font-semibold text-gray-900">Create Games</h3>
-                <p className="text-gray-600">Post pickup games easily</p>
-              </div>
-            </li>
-            <li className="flex items-start space-x-3">
-              <span className="text-2xl">👥</span>
-              <div>
-                <h3 className="font-semibold text-gray-900">Join Community</h3>
-                <p className="text-gray-600">Meet other players</p>
-              </div>
-            </li>
-            <li className="flex items-start space-x-3">
-              <span className="text-2xl">📅</span>
-              <div>
-                <h3 className="font-semibold text-gray-900">Book Courts</h3>
-                <p className="text-gray-600">Reserve permits online</p>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        {todos.length > 0 && (
-          <section className="p-6 bg-white rounded-lg shadow-sm border border-gray-200 text-left">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Todos</h2>
-            <ul className="space-y-2">
-              {todos.map((todo) => (
-                <li key={String(todo.id)} className="text-gray-700">
-                  {todo.name}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <div className="text-sm text-gray-600">
-          {backendStatus === 'checking' ? (
-            <p>Connecting to backend...</p>
-          ) : backendStatus === 'ready' ? (
-            <p>✓ Backend ready</p>
-          ) : (
-            <p role="status">Server unavailable. Please try again later.</p>
-          )}
-        </div>
-      </div>
+      </section>
     </main>
   );
 }
