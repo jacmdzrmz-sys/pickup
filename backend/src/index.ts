@@ -48,7 +48,7 @@ const checkHealth = (_req: Request, res: Response) => {
 
 app.get(['/health', '/api/health'], checkHealth);
 
-
+app.get('/', (_req: Request, res: Response) => {
   res.json({ name: 'pickup-api', status: 'ok', health: '/health' });
 });
 
