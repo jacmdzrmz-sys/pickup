@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import CompetitionSettings from '@/components/compete/CompetitionSettings';
+import ReminderSettings from '@/components/ReminderSettings';
 import { requireUser } from '@/lib/session';
 import type { GameView, NotificationRow, Profile } from '@/lib/db-types';
 import { evanstonToday } from '@/lib/time';
@@ -17,7 +18,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: settings }, { data: notes }, { data: myPlayers }, { data: blocks }, { data: adminRow }] =
     await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('account_settings').select('email_notifications, terms_accepted_at, adult_confirmed_at').eq('user_id', user.id).single(),
+      supabase.from('account_settings').select('email_notifications, terms_accepted_at, adult_confirmed_at, game_reminders, reminder_minutes').eq('user_id', user.id).single(),
       supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(20),
       supabase.from('community_game_players').select('game_id').eq('user_id', user.id),
       supabase.from('user_blocks').select('blocked_id'),
@@ -94,6 +95,11 @@ export default async function ProfilePage() {
         userId={user.id}
         profile={profile as Profile}
         emailNotifications={!!settings?.email_notifications}
+      />
+
+      <ReminderSettings
+        enabled={!!(settings as { game_reminders?: boolean } | null)?.game_reminders}
+        minutes={(settings as { reminder_minutes?: number } | null)?.reminder_minutes ?? 60}
       />
 
       <CompetitionSettings

@@ -6,6 +6,9 @@ import type { MatchSummary, RrEvent, RrStanding } from '@/lib/db-types';
 import { evanstonToday, formatTime, friendlyDate } from '@/lib/time';
 import Avatar from '@/components/compete/Avatar';
 import { EventControls, RoundMatch } from './event-controls';
+import AddToCalendar from '@/components/AddToCalendar';
+import { googleCalendarUrl, SITE } from '@/lib/calendar';
+import { rrCalendarEvent } from '@/lib/calendar-events';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +61,14 @@ export default async function EventPage({ params }: { params: { id: string } }) 
           {e.host_id && people.get(e.host_id) ? ` · Hosted by ${people.get(e.host_id)!.display_name}` : ''}
         </p>
         {e.description && <p className="mt-2 whitespace-pre-line rounded-lg bg-white p-3 text-gray-700">{e.description}</p>}
+        {(e.status === 'open' || e.status === 'in_progress') && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <AddToCalendar
+              googleUrl={googleCalendarUrl(rrCalendarEvent(e, loc ? { name: loc.name, address: null } : null, SITE))}
+              icsPath={`/compete/events/${e.id}/calendar`}
+            />
+          </div>
+        )}
       </header>
 
       {e.status === 'completed' && (

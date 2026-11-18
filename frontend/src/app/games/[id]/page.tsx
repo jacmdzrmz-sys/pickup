@@ -9,6 +9,9 @@ import Badge, { CourtStatusBadge, SettingBadge } from '@/components/Badge';
 import { GameDisclaimer, OutdoorNotice, RulesNotice } from '@/components/Notices';
 import ReportButton from '@/components/ReportButton';
 import { CancelGame, JoinLeave } from './game-actions';
+import AddToCalendar from '@/components/AddToCalendar';
+import { googleCalendarUrl, SITE } from '@/lib/calendar';
+import { gameCalendarEvent } from '@/lib/calendar-events';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +51,10 @@ export default async function GamePage({ params, searchParams }: { params: { id:
   const locInfo = (loc as unknown as { locations: { official_url: string | null; schedule_url: string | null } | null } | null)?.locations;
   const directions = mapsUrl(game.maps_query ?? game.location_address ?? game.location_name);
   const courtStatus = COURT_STATUSES.find((s) => s.value === game.court_status);
+  const { data: reminderRow } = user
+    ? await supabase.from('account_settings').select('game_reminders').eq('user_id', user.id).maybeSingle()
+    : { data: null };
+  const remindersOn = !!(reminderRow as { game_reminders?: boolean } | null)?.game_reminders;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
@@ -90,6 +97,11 @@ export default async function GamePage({ params, searchParams }: { params: { id:
             {friendlyDate(game.game_date, today)} · {formatTimeRange(game.start_time, game.end_time)}
           </p>
           <p className="text-sm text-gray-600">{formatDateLong(game.game_date)} (Evanston time)</p>
+          {!closed && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <AddToCalendar googleUrl={googleCalendarUrl(gameCalendarEvent(game, SITE))} icsPath={`/games/${game.id}/calendar`} />
+            </div>
+          )}
         </div>
         <div>
           <p className="font-semibold">📍 {game.location_name}</p>
@@ -153,6 +165,12 @@ export default async function GamePage({ params, searchParams }: { params: { id:
         {!closed && <RulesNotice links={links} />}
         {!closed && outdoor && <OutdoorNotice />}
         <JoinLeave gameId={game.id} joined={joined} isHost={isHost} full={full} signedIn={!!user} closed={closed} />
+        {(joined || isHost) && !closed && !remindersOn && (
+          <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+            ⏰ Want a heads-up before you play?{' '}
+            <Link href="/profile#reminders" className="font-bold underline">Turn on game reminders</Link>
+          </p>
+        )}
         {isHost && !closed && <CancelGame gameId={game.id} outdoor={outdoor} />}
       </section>
 
