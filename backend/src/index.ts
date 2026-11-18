@@ -15,10 +15,18 @@ const configuredOrigins = process.env.CORS_ORIGIN
   ?.split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const allowedOrigins = [
+  ...new Set([
+    ...(configuredOrigins ?? []),
+    'https://evanstondinks.app',
+    'https://www.evanstondinks.app',
+    'https://pickup-jalitico.vercel.app',
+  ]),
+];
 
 app.use(
   cors({
-    origin: configuredOrigins?.length ? configuredOrigins : true,
+    origin: allowedOrigins,
   })
 );
 app.use(express.json({ limit: '1mb' }));
@@ -40,7 +48,7 @@ const checkHealth = (_req: Request, res: Response) => {
 
 app.get(['/health', '/api/health'], checkHealth);
 
-app.get('/', (_req: Request, res: Response) => {
+
   res.json({ name: 'pickup-api', status: 'ok', health: '/health' });
 });
 
