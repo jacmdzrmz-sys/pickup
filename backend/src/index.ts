@@ -48,11 +48,6 @@ const checkHealth = (_req: Request, res: Response) => {
 
 app.get(['/health', '/api/health'], checkHealth);
 
-app.get('/', (req: Request, res: Response) => {
-  if (req.accepts(['json', 'html']) === 'html') {
-    res.redirect(302, 'https://www.evanstondinks.app');
-    return;
-  }
 
   res.json({ name: 'pickup-api', status: 'ok', health: '/health' });
 });
