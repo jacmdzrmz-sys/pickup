@@ -51,7 +51,7 @@ export default function HomeContent({ games, signedIn, donateUrl }: HomeContentP
           <img src="/brand/logo-512.png" alt="Evanston Dinks" className="mx-auto h-36 w-36 sm:h-44 sm:w-44" />
           <p className="mt-4 text-sm font-bold uppercase tracking-[0.2em] text-dink-blue">Welcome · Bienvenidos</p>
           <h1 className="mt-2 text-4xl font-black leading-tight tracking-tight sm:text-5xl">
-            Pickup pickleball for <span className="text-dink-pink">Heavenston.</span>
+            Pickup pickleball for <span className="text-dink-pink">all of Evanston.</span>
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-lg text-slate-600">
             Find a game, meet your neighbors, and know where to play: lakefront to the Canal, Central Street to Howard.
@@ -175,7 +175,7 @@ export default function HomeContent({ games, signedIn, donateUrl }: HomeContentP
           <p className="mt-2 text-slate-700">
             Evanston pickleball started on borrowed courts: pickleball lines painted onto tennis courts and temporary indoor courts at
             Robert Crown. Players went to Park Board meetings for years, and in 2026 James Park opened with 15 dedicated
-            courts. Evanston Dinks is a small thank-you to that spirit: a free, neighbor-run way to fill those courts.
+            courts. Evanston Dinks is a small thank-you to that effort: a free, neighbor-run way to fill those courts.
           </p>
           <p className="mt-3 text-slate-700">
             And a shout-out to Evanston Parks &amp; Rec, which keeps 76 parks, 6 beaches and a dozen facilities going
