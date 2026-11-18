@@ -30,10 +30,11 @@ insert into public.admins (user_id) values ('YOUR-USER-UUID');
 Authentication → URL Configuration
 
 - Site URL: `https://www.evanstondinks.app`
-- Redirect URLs: `https://www.evanstondinks.app/auth/callback`,
-  `https://evanstondinks.app/auth/callback`,
-  `https://*-jalitico.vercel.app/auth/callback` (previews),
-  `http://localhost:3000/auth/callback`
+- Redirect URLs (the `/**` matters — sign-in links carry extra details after the path):
+  `https://www.evanstondinks.app/**`,
+  `https://evanstondinks.app/**`,
+  `https://*-jalitico.vercel.app/**` (previews),
+  `http://localhost:3000/**`
 
 Authentication → Providers
 
