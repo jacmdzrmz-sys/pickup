@@ -15,6 +15,7 @@ export default function GuidelinesPage() {
       <ul>
         <li>List games accurately: real times, real locations, and the right court status.</li>
         <li>Never claim a court is reserved unless you have, or will get, a valid City or facility reservation.</li>
+        <li>Report only real scores, and confirm scores fairly. Keep competition friendly; no trash talk.</li>
         <li>No spam, advertising, or fake accounts. Instruction on City courts requires City approval.</li>
       </ul>
       <h2>Be reliable</h2>

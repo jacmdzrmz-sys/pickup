@@ -47,8 +47,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
-        <div className="flex min-h-screen flex-col pb-20 md:pb-0">
-          <AppNav signedIn={nav.signedIn} unread={nav.unread} />
+        <div className="flex min-h-screen flex-col pb-20 lg:pb-0">
+          <AppNav signedIn={nav.signedIn} unread={nav.unread} donateUrl={donate} />
           <div className="flex-1">{children}</div>
           <Footer donateUrl={donate} />
           <RegisterServiceWorker />
