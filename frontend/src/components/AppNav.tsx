@@ -21,8 +21,9 @@ export default function AppNav({ unread = 0, signedIn = false }: { unread?: numb
       <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-bold text-gray-900">
-            <span aria-hidden className="text-xl">🏓</span>
-            <span className="text-lg">Evanston Dinks</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo-160.png" alt="" className="h-9 w-9 rounded-full" />
+            <span className="text-lg">Evanston <span className="text-dink-pink">Dinks</span></span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
             {NAV.map((item) => (

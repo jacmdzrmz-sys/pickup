@@ -12,6 +12,13 @@ const config: Config = {
         primary: '#1f2937',
         secondary: '#3b82f6',
         accent: '#10b981',
+        dink: {
+          blue: '#2563eb',
+          pink: '#ec1476',
+          plum: '#530a47',
+          navy: '#111827',
+          paper: '#f9fafb',
+        },
       },
     },
   },

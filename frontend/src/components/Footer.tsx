@@ -13,6 +13,8 @@ export default function Footer({ donateUrl }: { donateUrl?: string | null }) {
         )}
         <p className="font-semibold text-gray-800">For emergencies or immediate danger, call 911.</p>
         <p>
+          <Link href="/about" className="hover:underline">Our Story</Link>
+          {' • '}
           <Link href="/terms" className="hover:underline">Terms</Link>
           {' • '}
           <Link href="/privacy" className="hover:underline">Privacy</Link>
