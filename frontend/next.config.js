@@ -9,6 +9,18 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Always fetch the newest service worker so app updates arrive right away.
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

@@ -3,6 +3,7 @@ import type { GameView } from '@/lib/db-types';
 import GameCard from '@/components/GameCard';
 import { evanstonToday } from '@/lib/time';
 import { DonateCard } from '@/components/Donate';
+import InstallApp from '@/components/InstallApp';
 
 type HomeContentProps = {
   games: GameView[];
@@ -58,6 +59,10 @@ export default function HomeContent({ games, signedIn, donateUrl }: HomeContentP
           </p>
         )}
       </section>
+
+      <div className="mx-auto max-w-3xl px-4 pb-6">
+        <InstallApp />
+      </div>
 
       <section className="mx-auto max-w-3xl px-4 pb-10">
         <div className="flex items-baseline justify-between">
