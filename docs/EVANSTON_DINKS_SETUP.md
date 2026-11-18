@@ -12,6 +12,7 @@ In the Supabase dashboard → SQL Editor, run these files in order:
 
 1. `supabase/migrations/20261117000000_evanston_dinks_community.sql`
 2. `supabase/migrations/20261117000100_avatars_storage.sql`
+3. `supabase/migrations/20261117000200_harden_function_access.sql`
 
 They create the tables, row-level security, validation triggers, and seed the
 courts, playing hours and official City links (checked 2026-11-17).
