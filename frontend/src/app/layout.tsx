@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import AppNav from '@/components/AppNav';
+import PaddleRally from '@/components/PaddleRally';
 import Footer from '@/components/Footer';
 import { RegisterServiceWorker } from '@/components/InstallApp';
 import { createClient } from '@/utils/supabase/server';
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="bg-gray-50 text-gray-900">
         <div className="flex min-h-screen flex-col pb-20 lg:pb-0">
           <AppNav signedIn={nav.signedIn} unread={nav.unread} donateUrl={donate} />
+          <PaddleRally />
           <div className="flex-1">{children}</div>
           <Footer donateUrl={donate} />
           <RegisterServiceWorker />
