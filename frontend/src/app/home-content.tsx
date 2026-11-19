@@ -174,12 +174,21 @@ export default function HomeContent({ games, signedIn, donateUrl }: HomeContentP
           <h2 className="text-2xl font-black">Built by neighbors who kept showing up</h2>
           <p className="mt-2 text-slate-700">
             Evanston pickleball started on borrowed courts: pickleball lines painted onto tennis courts and temporary indoor courts at
-            Robert Crown. Players went to Park Board meetings for years, and in 2026 James Park opened with 15 dedicated
-            courts. Evanston Dinks is a small thank-you to that effort: a free, neighbor-run way to fill those courts.
+            Robert Crown. Evanston neighbors went to Park Board meetings for years, and in 2026 James Park opened with 15
+            dedicated courts. That win belongs to them.
+          </p>
+          <p className="mt-3 text-slate-700">
+            Evanston Dinks was inspired by their effort and built to build community: a simple way to fill those courts and
+            meet the people who live around the corner. Neighbors made room for everyone to play, so this app is free for
+            everyone, too.
           </p>
           <p className="mt-3 text-slate-700">
             And a shout-out to Evanston Parks &amp; Rec, which keeps 76 parks, 6 beaches and a dozen facilities going
             in under 8 square miles.
+          </p>
+          <p className="mt-3 font-semibold text-slate-800">
+            Want to help? Donations pay for the servers and hosting that keep Evanston Dinks running, so more neighbors can
+            join in.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/about" className="rounded-full bg-dink-navy px-5 py-2.5 font-bold text-white">Our story</Link>
