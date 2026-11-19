@@ -43,8 +43,8 @@ export function DonateCard({ url, compact = false }: { url: string; compact?: bo
         Keep Evanston Dinks free
       </h2>
       <p className={clsx('mx-auto mt-1 max-w-md text-gray-700', compact ? 'text-sm' : 'text-base')}>
-        No ads, no fees to join. Evanston Dinks is run by a neighbor. If it’s helped you find a game, chip in what you can
-        to cover hosting and keep it free for everyone.
+        No ads, no fees to join. Your donation pays for the servers and hosting that keep Evanston Dinks running, so it
+        stays free and more neighbors can find a game.
       </p>
       <div className="mt-4">
         <DonateButton url={url} size={compact ? 'md' : 'lg'} />

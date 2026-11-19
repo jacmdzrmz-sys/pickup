@@ -18,11 +18,17 @@ export default function AboutPage() {
             where to play, whether it’s a summer evening at James Park or a January drop-in at Robert Crown.
           </p>
           <p>
-            It’s built and run by a neighbor: a Latina, a D65 parent, and a former service member who believes the best
-            parts of Evanston happen when people show up for each other. On the court, that means everyone gets a turn.
+            It was built to build community. The real work was done by Evanston neighbors, who spent years at Park Board
+            meetings pushing for places to play until James Park opened with 15 dedicated courts. Evanston Dinks is inspired by
+            that effort. They made room on the courts for everyone, so this app is free for everyone, too.
           </p>
           <p>
-            No ads. No fees to join a game. If it helps you find your people, that’s the whole point.
+            It’s run by a Latina, a D65 parent, and a former service member who believes the best parts of Evanston happen
+            when people show up for each other. On the court, that means everyone gets a turn.
+          </p>
+          <p>
+            No ads. No fees to join a game. Donations pay for the servers and hosting that keep it running, so more neighbors
+            can join in.
           </p>
         </div>
 
